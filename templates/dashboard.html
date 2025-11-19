@@ -1,0 +1,186 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+
+<div class="dashboard-page">
+  <section class="dashboard-hero">
+    <div class="dashboard-hero__intro">
+      <p class="eyebrow">Control Center</p>
+      <h1>Welcome back, {{ current_user.username }} 👋</h1>
+      <p class="muted">Track your project groups, spin up new teams, and stay aligned with upcoming deadlines.</p>
+    </div>
+    <div class="dashboard-hero__stats">
+      <div class="hero-stat">
+        <span class="hero-stat__label">Active groups</span>
+        <span class="hero-stat__value">{{ groups|length }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Tasks this week</span>
+        <span class="hero-stat__value">
+          {{ weekly_tasks|length if weekly_tasks is defined else 0 }}
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <section class="dashboard-grid single-column">
+    <!-- Groups -->
+    <div class="dashboard-card stretch-card">
+      <div class="dashboard-card__header">
+        <div>
+          <h2>My Groups</h2>
+          <p class="muted">Quick access to your current teams.</p>
+        </div>
+        <span class="tag">{{ groups|length }} total</span>
+      </div>
+
+      {% if groups %}
+      <ul class="groups-list">
+        {% for group in groups %}
+        <li class="group-card">
+          <div class="group-card__info">
+            <a class="group-name" href="{{ url_for('group_detail', group_id=group.id) }}">
+              {{ group.name }}
+            </a>
+            <p class="group-meta">{{ group.description or 'No description yet' }}</p>
+          </div>
+          <div class="group-card__meta">
+            <span class="muted">Admin</span>
+            <strong>{{ group.admin.username }}</strong>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% else %}
+        <div class="empty-state">
+          <p>No groups yet. Create one to get started!</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Create Group -->
+    <div id="create-group" class="card create-card stretch-card">
+      <h3>Create Group</h3>
+      <p class="muted">Spin up a fresh workspace for your next initiative.</p>
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="form-row">
+          {{ form.name.label }}
+          {{ form.name(placeholder='Team name') }}
+          {% for err in form.name.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+        </div>
+
+        <div class="form-row">
+          {{ form.description.label }}
+          {{ form.description(placeholder='Short description (optional)') }}
+        </div>
+
+        <div class="form-row">
+          {{ form.submit(class_='btn') }}
+        </div>
+      </form>
+    </div>
+  </section>
+</div>
+
+
+
+<!-- in <head> of your base.html add -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+
+<!-- where you want the calendar (dashboard template) -->
+
+
+<!-- after your other scripts (before </body>) -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const calendarEl = document.getElementById('task-calendar');
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay'
+    },
+    height: 650,
+    navLinks: true,
+    nowIndicator: true,
+    eventDisplay: 'block',
+    events: {
+      url: '{{ url_for("task_events") }}',
+      method: 'GET',
+      failure: function() {
+        alert('There was an error while fetching events.');
+      }
+    },
+    eventClick: function(info) {
+      // allow link to open in same tab
+      if (info.event.url) {
+        window.location.href = info.event.url;
+        info.jsEvent.preventDefault();
+      }
+    },
+    eventDidMount: function(info) {
+      // simple tooltip with title + due date if available
+      let el = info.el;
+      el.setAttribute('title', info.event.title);
+    },
+    loading: function(isLoading) {
+      // optionally show a loading indicator
+      // document.getElementById('loading-indicator').style.display = isLoading ? 'block' : 'none';
+    },
+    dayMaxEvents: true,
+    now: new Date().toISOString()
+  });
+
+  calendar.render();
+});
+</script>
+
+<<!-- Calendar Section (full width below the columns) -->
+<div class="card calendar-card" style="margin-top:20px;">
+  <h2>Task Calendar</h2>
+  <p class="muted">This calendar shows your tasks, due dates, and updates.</p>
+  <div id="calendar"></div>
+</div>
+
+<!-- FullCalendar inside the same block -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/main.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log("Calendar script loaded");  // Debug
+
+  const calendarEl = document.getElementById('calendar');
+  if (!calendarEl) {
+    console.log("Calendar element NOT FOUND");
+    return;
+  }
+
+  console.log("Calendar element found, rendering...");
+
+  const calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    height: 'auto',
+    headerToolbar: {
+      left: 'prev,next today',
+      center: 'title',
+      right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    events: '/api/tasks/events',
+    eventColor: '#2b6cb0',
+    eventTextColor: 'white',
+    eventClick: function(info) {
+      const groupId = info.event.extendedProps.group_id;
+      const taskId = info.event.id;
+      window.location.href = `/groups/${groupId}/tasks/${taskId}`;
+    }
+  });
+
+  calendar.render();
+});
+</script>
+
+
+{% endblock %}

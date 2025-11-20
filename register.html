@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block content %}
+
+  <div class="auth-card">
+
+<h1 class="gradient-text">Welcome to Workpulse</h1>
+  <div class="auth-card-r">
+    <h2>Register</h2>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+
+      <div class="form-row">
+        {{ form.username.label }}
+        {{ form.username(placeholder='Choose a username') }}
+        {% for err in form.username.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        {{ form.email.label }}
+        {{ form.email(placeholder='you@example.com') }}
+        {% for err in form.email.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        {{ form.password.label }}
+        {{ form.password(placeholder='Password') }}
+        {% for err in form.password.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        {{ form.confirm.label }}
+        {{ form.confirm(placeholder='Confirm password') }}
+        {% for err in form.confirm.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        {{ form.submit(class_='btn') }}
+      </div>
+    </form>
+    <p class="muted">Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+  </div>
+
+  
+  
+  <script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.1/tsparticles.confetti.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.11.0/tsparticles.bundle.min.js"></script>
+
+
+{% endblock %}

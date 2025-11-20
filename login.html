@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+  <div class="auth-card">
+    <h1 class="gradient-text">Welcome to Workpulse</h1>
+    <h2>Login</h2>
+
+   
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="form-row">
+        {{ form.email.label }}
+        {{ form.email(size=32, placeholder='you@example.com') }}
+        {% for err in form.email.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+    
+
+      <div class="form-row">
+        {{ form.password.label }}
+        <div class="password-row">
+          {{ form.password(id='login-password', placeholder='Your password') }}
+          <button type="button" id="togglePwd" class="link-like">Show</button>
+        </div>
+        {% for err in form.password.errors %}<div class="field-error">{{ err }}</div>{% endfor %}
+      </div>
+
+      <div class="form-row">
+        {{ form.submit(class_='btn') }}
+      </div>
+    </form>
+    <p class="muted">Don't have an account? <a href="{{ url_for('register') }}">Register</a></p>
+  </div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.1/tsparticles.confetti.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.11.0/tsparticles.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/tsparticles-confetti@2.10.1/tsparticles.confetti.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tsparticles/2.11.0/tsparticles.bundle.min.js"></script>
+
+<div id="tsparticles" style="position: absolute; width: 100%; height: 100%; z-index: -1; background-color: transparent;"></div>
+
+<script>
+    tsParticles.load("tsparticles", {
+      particles: {
+        number: { value: 80 },
+        
+        // CHANGED: Color of the DOTS (e.g., Orange)
+        color: { value: "#9023cf" }, 
+        
+        links: {
+          enable: true,
+
+          distance: 300,
+          
+          // CHANGED: Color of the LINES connecting the dots
+          color: "#9023cf", 
+          
+          opacity: 0.4,
+          width: 2
+        },
+        move: { enable: true, speed: 3 }
+      },
+      interactivity: {
+        events: {
+          onHover: { enable: true, mode: "repulse" },
+          onClick: { enable: true, mode: "push" }
+        }
+      }
+    });
+</script>
+  <script>
+    const toggle = document.getElementById('togglePwd');
+    if (toggle) {
+      toggle.addEventListener('click', () => {
+        const pwd = document.getElementById('login-password');
+        if (!pwd) return;
+        if (pwd.type === 'password') { pwd.type = 'text'; toggle.textContent = 'Hide'; }
+        else { pwd.type = 'password'; toggle.textContent = 'Show'; }
+      });
+    }
+  </script>
+{% endblock %}
